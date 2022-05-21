@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<launch>
+
+    ### CONFIGURATION ###
+    <arg name="house" default="House30"/>          # House to simulate
+    <arg name="rosbagdir" default="$(find rosbags_unity)/rosbags/"/>     # Directory of the rosbag files
+    <arg name="mapsdir" default="$(find rosbags_unity)/gridMaps"/>           # Directory of the maps files
+    
+
+    ### FLOORPLAN RECONSTRUCTION ###
+    <node name="emulate_camera" pkg="rosbags_unity" type="emulate_camera.py" output="screen">
+        <param name="image_width" value="640"/>
+        <param name="image_height" value="480"/>
+        <param name="camera_cx" value="320"/>
+        <param name="camera_cy" value="240"/>
+        <param name="camera_fx" value="304.0859"/>
+        <param name="camera_fy" value="312.7741"/>
+        <param name="camera_depth_max_range" value="10.0"/>
+    </node>
+
+    ### NAVIGATION ###
+    <arg name="map_file" value="$(arg mapsdir)/ViMantic_$(arg house).yaml"/>
+    <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" launch-prefix=""/>
+
+    ### ROSBAG PLAYER ###
+    <node pkg="rosbag" type="play" name="player" output="log" args="$(arg rosbagdir)$(arg house).bag"/>
+    
+    ### RVIZ
+    <node name="rviz_player" pkg="rviz" type="rviz" args="-d $(find rosbags_unity)/rviz/rosbags_unity2.rviz"/>
+
+
+</launch>

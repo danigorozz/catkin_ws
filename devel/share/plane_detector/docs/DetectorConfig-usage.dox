@@ -1,0 +1,11 @@
+\subsubsection usage Usage
+\verbatim
+<node name="plane_calibrator" pkg="plane_calibrator" type="plane_calibrator">
+  <param name="delta" type="double" value="0.15" />
+  <param name="epsilon" type="double" value="0.0005" />
+  <param name="gamma" type="double" value="0.02" />
+  <param name="theta" type="int" value="19000" />
+  <param name="downsample" type="bool" value="True" />
+</node>
+\endverbatim
+

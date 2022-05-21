@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+    <!-- Lanzamos el rosbag del laboratorio -->
+    <node pkg="rosbag" type="play" name="player" args="--clock /home/daniel/TFG/bagtest.bag" />
+    
+    <node name="republish" type="republish" pkg="image_transport" output="screen" args="compressed in:=/camera_down/rgb/image_raw raw out:=/camera_down/rgb/image_raw/decompressed" />
+    
+    <!-- Lanzamos nodo cam_info que crea el mensaje de tipo CameraInfo y lo publica en /camera_info -->
+    <node pkg="rgbd_filter" type="cam_info" name="cam_info" />
+    
+    <!-- Lanzamos el nodo que sincroniza la depth image con el camera info generado -->
+    <node pkg="rgbd_filter" type="sync_info.py" name="sync_info" />
+    
+    <node pkg="rgbd_filter" type="write_objects" name="write_objects" launch-prefix="xterm -e"/>
+    
+    <include file="$(find depth_image_proc)/launch/main.launch" />
+    
+    <include file="$(find darknet_ros)/launch/yolo_v3.launch"/>
+
+</launch>

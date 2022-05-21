@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>  
+    
+    <!-- SELECTION ARGUMENT -->
+    <arg name="select" default="0" />
+    
+    <!-- SYNCHRONIZER EXECUTION IN PYTHON SCRIPT -->
+    <node pkg="rgbd_filter" name="synchro_v2" type="synchro_v2.py" output="screen" />
+    <!-- <node pkg="rgbd_filter" name="depth_smashing" type="depth_smashing.py" output="screen" launch-prefix="terminator -x"/> -->
+    <!--<node pkg="rgbd_filter" name="bboxes_v2" type="bboxes_v2.py" output="screen" />-->
+    
+    <!-- PLAY ROSBAG DEPENDING ON SELECT ARGUMENT -->
+    <node pkg="rosbag" type="play" name="player" args="--clock /home/daniel/TFG/rosbags_tfg_unity/House20.bag" if="$(eval arg('select') == 0)"/>
+    <node pkg="rosbag" type="play" name="player" args="--clock /home/daniel/TFG/rosbags_tfg_unity/House23.bag" if="$(eval arg('select') == 1)"/>
+    <node pkg="rosbag" type="play" name="player" args="--clock /home/daniel/TFG/rosbags_tfg_unity/House30.bag" if="$(eval arg('select') == 2)"/>
+    
+    <!-- LAUNCH YOLO_V3.LAUNCH FOR OBJECT DETECTION -->
+    <!-- <include file="$(find darknet_ros)/launch/yolo_v3.launch" /> -->
+    
+    <!-- LAUNCH SLAM_GMAPPING -->
+    <!-- <include file="$(find gmapping)/launch/slam_gmapping_pr2.launch" /> -->
+    
+</launch>

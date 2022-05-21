@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+    <!-- Parametro necesario para gmapping -->
+    <param name="use_sim_time" value="true"/>
+
+    <!-- Lanzamos el rosbag del laboratorio -->
+    <node pkg="rosbag" type="play" name="player" args="--clock /home/daniel/TFG/bagtest.bag" />
+    
+    <!-- Lanzamos nodo cam_info que crea el mensaje de tipo CameraInfo y lo publica en /camera_info -->
+    <node pkg="rgbd_filter" type="cam_info" name="cam_info" />
+    
+    <!-- Lanzamos el nodo que sincroniza la depth image con el camera info generado -->
+    <node pkg="rgbd_filter" type="sync_info.py" name="sync_info" />
+    
+    <!-- Lanzamos el launch del depthimage_to_laserscan para obtener el nuevo laser a partir de la depthimage -->
+    <include file="$(find depthimage_to_laserscan)/launch/launchfile_sample.launch" />
+    
+    <!-- Abrimos la configuración de RVIZ -->
+    <node name="rviz_player" pkg="rviz" type="rviz" args="-d $(find rgbd_filter)/rviz/config_rviz.rviz" />
+    
+    <!-- Lanzamos el slam_gmapping -->
+    <arg name="scan" default="/laser_scan" />
+    <remap from="/scan"       to="$(arg scan)" />
+    
+    <node name="republish" type="republish" pkg="image_transport" output="screen" args="compressed in:=/camera_down/rgb/image_raw raw out:=/camera_down/rgb/image_raw/decompressed" />
+    
+    <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping">
+      <param name="map_update_interval" value="5.0"/>
+      <param name="maxUrange" value="16.0"/>
+      <param name="sigma" value="0.05"/>
+      <param name="kernelSize" value="1"/>
+      <param name="lstep" value="0.05"/>
+      <param name="astep" value="0.05"/>
+      <param name="iterations" value="5"/>
+      <param name="lsigma" value="0.075"/>
+      <param name="ogain" value="3.0"/>
+      <param name="lskip" value="0"/>
+      <param name="srr" value="0.1"/>
+      <param name="srt" value="0.2"/>
+      <param name="str" value="0.1"/>
+      <param name="stt" value="0.2"/>
+      <param name="linearUpdate" value="0.3"/>      <!-- 1.0 por defecto -->
+      <param name="angularUpdate" value="0.7"/>     <!-- 0.5 por defecto -->
+      <param name="temporalUpdate" value="3.0"/>    <!-- 3.0 por defecto -->
+      <param name="resampleThreshold" value="0.5"/>
+      <param name="particles" value="30"/>
+      <param name="xmin" value="-50.0"/>
+      <param name="ymin" value="-50.0"/>
+      <param name="xmax" value="50.0"/>
+      <param name="ymax" value="50.0"/>
+      <param name="delta" value="0.05"/>
+      <param name="llsamplerange" value="0.01"/>
+      <param name="llsamplestep" value="0.01"/>
+      <param name="lasamplerange" value="0.005"/>
+      <param name="lasamplestep" value="0.005"/>
+    </node>
+    
+</launch>
